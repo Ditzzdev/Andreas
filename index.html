@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Tech Quiz</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1047 50%, #2d1b69 100%);
+      position: relative;
+    }
+
+    html {
+      height: 100%;
+      width: 100%;
+    }
+
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(138, 92, 246, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin: 0 0 10px 0;
+      text-align: center;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      text-shadow: 0 0 30px rgba(167, 139, 250, 0.3);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(167, 139, 250, 0.3);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #a78bfa;
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(167, 139, 250, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .question-container {
+      display: none;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .question-number {
+      color: #a78bfa;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .score-display {
+      color: #ec4899;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .question-text {
+      font-size: 22px;
+      color: white;
+      margin-bottom: 30px;
+      line-height: 1.5;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .options {
+      display: grid;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .option {
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      font-size: 16px;
+    }
+
+    .option:hover {
+      background: rgba(167, 139, 250, 0.15);
+      border-color: rgba(167, 139, 250, 0.4);
+      transform: translateX(5px);
+    }
+
+    .option.selected {
+      background: rgba(167, 139, 250, 0.25);
+      border-color: #a78bfa;
+    }
+
+    .option.correct {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10b981;
+    }
+
+    .option.incorrect {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+    }
+
+    .result-container {
+      display: none;
+      text-align: center;
+    }
+
+    .result-score {
+      font-size: 72px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 20px 0;
+    }
+
+    .result-message {
+      font-size: 24px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 30px;
+    }
+
+    .leaderboard {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .leaderboard h3 {
+      color: #a78bfa;
+      margin: 0 0 15px 0;
+      font-size: 20px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin: 5px 0;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .visible {
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .game-card {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .question-text {
+        font-size: 18px;
+      }
+
+      .result-score {
+        font-size: 56px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="stars" id="stars"></div>
+  <div class="container">
+   <div class="game-card">
+    <div class="content">
+     <div id="welcome-screen">
+      <h1 id="game-title">Galaxy Tech Quiz</h1>
+      <p class="subtitle" id="game-subtitle">Tes Pengetahuan TKJ Kamu</p>
+      <div class="input-group"><label for="player-name">Nama Kamu</label> <input type="text" id="player-name" placeholder="Masukkan nama...">
+      </div><button class="btn-primary" id="start-btn">Mulai Quiz</button>
+     </div>
+     <div class="question-container" id="question-screen">
+      <div class="question-header"><span class="question-number" id="question-number">Pertanyaan 1/20</span> <span class="score-display" id="current-score">Skor: 0</span>
+      </div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div><button class="btn-primary hidden" id="next-btn">Lanjut</button>
+     </div>
+     <div class="result-container" id="result-screen">
+      <h1>Quiz Selesai! 🎉</h1>
+      <div class="result-score" id="final-score">
+       0/20
+      </div>
+      <p class="result-message" id="result-message"></p>
+      <div class="leaderboard">
+       <h3>Leaderboard Top 5</h3>
+       <div id="leaderboard-list"></div>
+      </div><button class="btn-primary" id="play-again-btn">Main Lagi</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      game_title: "Galaxy Tech Quiz",
+      game_subtitle: "Tes Pengetahuan TKJ Kamu",
+      background_color: "#0a0e27",
+      primary_color: "#a78bfa",
+      secondary_color: "#ec4899",
+      text_color: "#ffffff",
+      card_color: "#1a1047"
+    };
+
+    let config = { ...defaultConfig };
+    let currentData = [];
+
+    const questions = [
+      {
+        question: "Apa kepanjangan dari TCP/IP?",
+        options: ["Transmission Control Protocol/Internet Protocol", "Transfer Control Protocol/Internet Protocol", "Transmission Computer Protocol/Internet Protocol", "Transfer Computer Protocol/Internet Protocol"],
+        correct: 0
+      },
+      {
+        question: "Berapa jumlah bit dalam satu byte?",
+        options: ["4 bit", "8 bit", "16 bit", "32 bit"],
+        correct: 1
+      },
+      {
+        question: "Apa fungsi utama dari DNS?",
+        options: ["Mengirim email", "Menerjemahkan nama domain ke IP address", "Mengamankan jaringan", "Menyimpan data"],
+        correct: 1
+      },
+      {
+        question: "Topologi jaringan yang berbentuk lingkaran adalah?",
+        options: ["Star", "Bus", "Ring", "Mesh"],
+        correct: 2
+      },
+      {
+        question: "Berapa kelas IP Address yang digunakan untuk jaringan besar?",
+        options: ["Kelas A", "Kelas B", "Kelas C", "Kelas D"],
+        correct: 0
+      },
+      {
+        question: "Perangkat yang menghubungkan dua jaringan berbeda disebut?",
+        options: ["Switch", "Hub", "Router", "Modem"],
+        correct: 2
+      },
+      {
+        question: "Apa kepanjangan dari LAN?",
+        options: ["Large Area Network", "Local Area Network", "Long Area Network", "Limited Area Network"],
+        correct: 1
+      },
+      {
+        question: "Port default untuk HTTP adalah?",
+        options: ["21", "22", "80", "443"],
+        correct: 2
+      },
+      {
+        question: "Subnet mask untuk kelas C adalah?",
+        options: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.255"],
+        correct: 2
+      },
+      {
+        question: "Apa kepanjangan dari OSI?",
+        options: ["Open System Interconnection", "Operating System Interface", "Open Source Integration", "Online System Interface"],
+        correct: 0
+      },
+      {
+        question: "Berapa layer pada model OSI?",
+        options: ["5 layer", "6 layer", "7 layer", "8 layer"],
+        correct: 2
+      },
+      {
+        question: "Protokol untuk transfer file adalah?",
+        options: ["HTTP", "FTP", "SMTP", "POP3"],
+        correct: 1
+      },
+      {
+        question: "Perangkat untuk memperkuat sinyal jaringan disebut?",
+        options: ["Router", "Switch", "Repeater", "Bridge"],
+        correct: 2
+      },
+      {
+        question: "Apa kepanjangan dari MAC Address?",
+        options: ["Machine Access Control", "Media Access Control", "Memory Access Control", "Main Access Control"],
+        correct: 1
+      },
+      {
+        question: "Kabel jaringan yang paling umum digunakan adalah?",
+        options: ["Coaxial", "Fiber Optic", "UTP", "STP"],
+        correct: 2
+      },
+      {
+        question: "Apa fungsi dari firewall?",
+        options: ["Mempercepat internet", "Mengamankan jaringan dari ancaman", "Menyimpan data", "Mengirim email"],
+        correct: 1
+      },
+      {
+        question: "Standar kabel UTP yang umum digunakan adalah?",
+        options: ["Cat4", "Cat5e", "Cat3", "Cat2"],
+        correct: 1
+      },
+      {
+        question: "DHCP berfungsi untuk?",
+        options: ["Memberikan IP address otomatis", "Mengamankan jaringan", "Transfer file", "Browsing internet"],
+        correct: 0
+      },
+      {
+        question: "Apa kepanjangan dari WAN?",
+        options: ["Wide Area Network", "Wireless Area Network", "World Area Network", "Web Area Network"],
+        correct: 0
+      },
+      {
+        question: "Port default untuk HTTPS adalah?",
+        options: ["80", "443", "8080", "21"],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let playerName = "";
+    let selectedAnswer = null;
+
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        starsContainer.appendChild(star);
+      }
+    }
+
+    function showScreen(screenId) {
+      document.getElementById('welcome-screen').classList.add('hidden');
+      document.getElementById('question-screen').classList.remove('visible');
+      document.getElementById('result-screen').classList.remove('visible');
+      
+      if (screenId === 'question') {
+        document.getElementById('question-screen').classList.add('visible');
+      } else if (screenId === 'result') {
+        document.getElementById('result-screen').classList.add('visible');
+      } else {
+        document.getElementById('welcome-screen').classList.remove('hidden');
+      }
+    }
+
+    function displayQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('question-number').textContent = `Pertanyaan ${currentQuestion + 1}/20`;
+      document.getElementById('current-score').textContent = `Skor: ${score}`;
+      document.getElementById('question-text').textContent = q.question;
+      
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+      
+      q.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.textContent = option;
+        optionDiv.addEventListener('click', () => selectAnswer(index));
+        optionsContainer.appendChild(optionDiv);
+      });
+      
+      document.getElementById('next-btn').classList.add('hidden');
+      selectedAnswer = null;
+    }
+
+    function selectAnswer(index) {
+      if (selectedAnswer !== null) return;
+      
+      selectedAnswer = index;
+      const options = document.querySelectorAll('.option');
+      const correctAnswer = questions[currentQuestion].correct;
+      
+      options[index].classList.add('selected');
+      
+      setTimeout(() => {
+        if (index === correctAnswer) {
+          options[index].classList.add('correct');
+          score++;
+          document.getElementById('current-score').textContent = `Skor: ${score}`;
+        } else {
+          options[index].classList.add('incorrect');
+          options[correctAnswer].classList.add('correct');
+        }
+        
+        document.getElementById('next-btn').classList.remove('hidden');
+      }, 300);
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      
+      if (currentQuestion < questions.length) {
+        displayQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    async function showResults() {
+      showScreen('result');
+      
+      document.getElementById('final-score').textContent = `${score}/20`;
+      
+      let message = "";
+      const percentage = (score / 20) * 100;
+      
+      if (percentage >= 90) {
+        message = "Luar biasa! Kamu Master TKJ! 🌟";
+      } else if (percentage >= 75) {
+        message = "Hebat! Pengetahuan TKJ kamu sangat baik! 🚀";
+      } else if (percentage >= 60) {
+        message = "Bagus! Terus belajar ya! 💪";
+      } else {
+        message = "Semangat! Belajar lagi supaya lebih jago! 📚";
+      }
+      
+      document.getElementById('result-message').textContent = message;
+      
+      if (window.dataSdk && playerName) {
+        const result = await window.dataSdk.create({
+          player_name: playerName,
+          score: score,
+          total_questions: 20,
+          timestamp: new Date().toISOString()
+        });
+        
+        if (!result.isOk) {
+          console.error("Failed to save score");
+        }
+      }
+    }
+
+    function displayLeaderboard(data) {
+      const sorted = [...data].sort((a, b) => b.score - a.score).slice(0, 5);
+      const leaderboardList = document.getElementById('leaderboard-list');
+      
+      if (sorted.length === 0) {
+        leaderboardList.innerHTML = '<div class="leaderboard-item">Belum ada data</div>';
+        return;
+      }
+      
+      leaderboardList.innerHTML = sorted.map((item, index) => `
+        <div class="leaderboard-item">
+          <span>${index + 1}. ${item.player_name}</span>
+          <span>${item.score}/20</span>
+        </div>
+      `).join('');
+    }
+
+    function resetGame() {
+      currentQuestion = 0;
+      score = 0;
+      selectedAnswer = null;
+      playerName = "";
+      document.getElementById('player-name').value = "";
+      showScreen('welcome');
+    }
+
+    document.getElementById('start-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('player-name');
+      playerName = nameInput.value.trim();
+      
+      if (!playerName) {
+        nameInput.style.borderColor = '#ef4444';
+        setTimeout(() => {
+          nameInput.style.borderColor = 'rgba(167, 139, 250, 0.3)';
+        }, 1000);
+        return;
+      }
+      
+      showScreen('question');
+      displayQuestion();
+    });
+
+    document.getElementById('next-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      nextQuestion();
+    });
+
+    document.getElementById('play-again-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetGame();
+    });
+
+    async function onConfigChange(newConfig) {
+      const titleElement = document.getElementById('game-title');
+      const subtitleElement = document.getElementById('game-subtitle');
+      
+      if (titleElement) {
+        titleElement.textContent = newConfig.game_title || defaultConfig.game_title;
+      }
+      if (subtitleElement) {
+        subtitleElement.textContent = newConfig.game_subtitle || defaultConfig.game_subtitle;
+      }
+      
+      document.body.style.background = `linear-gradient(135deg, ${newConfig.background_color || defaultConfig.background_color} 0%, ${newConfig.card_color || defaultConfig.card_color} 50%, #2d1b69 100%)`;
+      
+      const h1Elements = document.querySelectorAll('h1');
+      h1Elements.forEach(h1 => {
+        h1.style.background = `linear-gradient(135deg, ${newConfig.primary_color || defaultConfig.primary_color} 0%, ${newConfig.secondary_color || defaultConfig.secondary_color} 100%)`;
+        h1.style.webkitBackgroundClip = 'text';
+        h1.style.webkitTextFillColor = 'transparent';
+        h1.style.backgroundClip = 'text';
+      });
+      
+      const buttons = document.querySelectorAll('.btn-primary');
+      buttons.forEach(btn => {
+        btn.style.background = `linear-gradient(135deg, ${newConfig.primary_color || defaultConfig.primary_color} 0%, ${newConfig.secondary_color || defaultConfig.secondary_color} 100%)`;
+      });
+    }
+
+    const dataHandler = {
+      onDataChanged(data) {
+        currentData = data;
+        displayLeaderboard(data);
+      }
+    };
+
+    async function initApp() {
+      createStars();
+      
+      if (window.dataSdk) {
+        const initResult = await window.dataSdk.init(dataHandler);
+        if (!initResult.isOk) {
+          console.error("Failed to initialize data SDK");
+        }
+      }
+      
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => config.card_color || defaultConfig.card_color,
+                set: (value) => {
+                  config.card_color = value;
+                  window.elementSdk.setConfig({ card_color: value });
+                }
+              },
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (value) => {
+                  config.primary_color = value;
+                  window.elementSdk.setConfig({ primary_color: value });
+                }
+              },
+              {
+                get: () => config.secondary_color || defaultConfig.secondary_color,
+                set: (value) => {
+                  config.secondary_color = value;
+                  window.elementSdk.setConfig({ secondary_color: value });
+                }
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["game_title", config.game_title || defaultConfig.game_title],
+            ["game_subtitle", config.game_subtitle || defaultConfig.game_subtitle]
+          ])
+        });
+        
+        config = window.elementSdk.config;
+        await onConfigChange(config);
+      }
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a6b6dafc6ad9b93',t:'MTc2NDUxNzA3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
